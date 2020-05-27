@@ -3,8 +3,8 @@ const fetch = require('node-fetch');
 
 const app = express();
 
-const host = 'localhost';
-const hostPort = 8080;
+const host = process.env.BACKEND_COMPONENT_HOST || 'localhost';
+const hostPort = process.env.BACKEND_COMPONENT_PORT || '8080';
 
 app.get('/', (req, res) => {
   fetch(`http://${host}:${hostPort}/api/message`)
@@ -24,6 +24,6 @@ app.get('/', (req, res) => {
 
 const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
+app.listen(Number(port), () => {
   console.log(`Frontend service listening on port ${port}`);
 });

@@ -1,0 +1,35 @@
+apiVersion: 1.0.0
+metadata:
+  generateName: nodejs-
+projects:
+  - name: nodejs-multiple-components-frontend
+    source:
+      type: git
+      location: "https://github.com/alexalikiotis/odo-nodejs-multiple-components.git"
+components:
+  - type: dockerimage
+    alias: frontend
+    image: registry.access.redhat.com/ubi8/nodejs-12
+    env:
+      - name: BACKEND_COMPONENT_HOST
+        value: "nodejs-backend"
+      - name: BACKEND_COMPONENT_PORT
+        value: "8080"
+    memoryLimit: 256Mi
+    mountSources: true
+    endpoints:
+      - name: "nodejs-frontend"
+        port: 8080
+commands:
+  - name: devBuild
+    actions:
+      - type: exec
+        component: frontend
+        command: npm install
+        workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-frontend
+  - name: devRun
+    actions:
+      - type: exec
+        component: frontend
+        command: npm start
+        workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-frontend

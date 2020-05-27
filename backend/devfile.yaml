@@ -1,0 +1,30 @@
+apiVersion: 1.0.0
+metadata:
+  generateName: nodejs-
+projects:
+  - name: nodejs-multiple-components-backend
+    source:
+      type: git
+      location: "https://github.com/alexalikiotis/odo-nodejs-multiple-components.git"
+components:
+  - type: dockerimage
+    alias: backend
+    image: registry.access.redhat.com/ubi8/nodejs-12
+    memoryLimit: 256Mi
+    mountSources: true
+    endpoints:
+      - name: "nodejs-backend"
+        port: 8080
+commands:
+  - name: devBuild
+    actions:
+      - type: exec
+        component: backend
+        command: npm install
+        workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-backend
+  - name: devRun
+    actions:
+      - type: exec
+        component: backend
+        command: npm start
+        workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-backend
