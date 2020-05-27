@@ -15,6 +15,6 @@ app.get('/api/message', (req, res) => {
 
 const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
+app.listen(Number(port), () => {
   console.log(`Backend service listening on port ${port}`);
 });
