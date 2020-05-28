@@ -12,7 +12,7 @@ components:
   - type: dockerimage
     alias: build
     image: registry.access.redhat.com/ubi8/nodejs-12
-    memoryLimit: 1024Mi
+    memoryLimit: 512Mi
     mountSources: true
     command: ["tail"]
     args: ["-f", "/dev/null"]
@@ -30,7 +30,7 @@ components:
         value: nodejs-backend
       - name: BACKEND_PORT
         value: "8080"
-    memoryLimit: 1024Mi
+    memoryLimit: 512Mi
     mountSources: true
     volumes:
       - name: node-modules

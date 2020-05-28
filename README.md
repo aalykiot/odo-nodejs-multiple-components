@@ -34,31 +34,52 @@ Devfile
 apiVersion: 1.0.0
 metadata:
   generateName: nodejs-
+
 projects:
   - name: nodejs-multiple-components-backend
     source:
       type: git
       location: "https://github.com/alexalikiotis/odo-nodejs-multiple-components.git"
+
 components:
   - type: dockerimage
-    alias: backend
+    alias: build
     image: registry.access.redhat.com/ubi8/nodejs-12
-    memoryLimit: 256Mi
+    memoryLimit: 512Mi
     mountSources: true
+    command: ["tail"]
+    args: ["-f", "/dev/null"]
+    volumes:
+      - name: node-modules
+        containerPath: /deps
+
+  - type: dockerimage
+    alias: runtime
+    image: registry.access.redhat.com/ubi8/nodejs-12
+    memoryLimit: 512Mi
+    mountSources: true
+    env:
+      - name: NODE_PATH
+        value: /deps/node_modules
+    volumes:
+      - name: node-modules
+        containerPath: /deps
     endpoints:
-      - name: "nodejs-backend"
+      - name: "8080/http"
         port: 8080
+
 commands:
   - name: devBuild
     actions:
       - type: exec
-        component: backend
-        command: npm install
+        component: build
+        command: npm install && mv node_modules /deps/
         workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-backend
+
   - name: devRun
     actions:
       - type: exec
-        component: backend
+        component: runtime
         command: npm start
         workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-backend
 ```
@@ -94,7 +115,7 @@ components:
   - type: dockerimage
     alias: build
     image: registry.access.redhat.com/ubi8/nodejs-12
-    memoryLimit: 1024Mi
+    memoryLimit: 512Mi
     mountSources: true
     command: ["tail"]
     args: ["-f", "/dev/null"]
@@ -112,7 +133,7 @@ components:
         value: nodejs-backend
       - name: BACKEND_PORT
         value: "8080"
-    memoryLimit: 1024Mi
+    memoryLimit: 512Mi
     mountSources: true
     volumes:
       - name: node-modules
