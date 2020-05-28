@@ -1,11 +1,13 @@
 apiVersion: 1.0.0
 metadata:
   generateName: nodejs-
+
 projects:
   - name: nodejs-multiple-components-backend
     source:
       type: git
       location: "https://github.com/alexalikiotis/odo-nodejs-multiple-components.git"
+
 components:
   - type: dockerimage
     alias: backend
@@ -15,6 +17,7 @@ components:
     endpoints:
       - name: "nodejs-backend"
         port: 8080
+
 commands:
   - name: devBuild
     actions:
@@ -22,6 +25,7 @@ commands:
         component: backend
         command: npm install
         workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-backend
+
   - name: devRun
     actions:
       - type: exec

@@ -10,7 +10,7 @@ For all of the above steps you have to be logged in to openshift.
 ## Create a new openshift project
 
 ```sh
-$ odo project create nodejs-multi-project
+$ odo project create nodejs-playground
 ```
 A project is a workspace where we will deploy all of our components and services.
 
@@ -82,37 +82,57 @@ Devfile
 ```
 apiVersion: 1.0.0
 metadata:
-  generateName: nodejs-
+  generateName: nodejs-multiple-components-
+
 projects:
   - name: nodejs-multiple-components-frontend
     source:
       type: git
       location: "https://github.com/alexalikiotis/odo-nodejs-multiple-components.git"
+
 components:
   - type: dockerimage
-    alias: frontend
+    alias: build
+    image: registry.access.redhat.com/ubi8/nodejs-12
+    memoryLimit: 1024Mi
+    mountSources: true
+    command: ["tail"]
+    args: ["-f", "/dev/null"]
+    volumes:
+      - name: node-modules
+        containerPath: /deps
+
+  - type: dockerimage
+    alias: runtime
     image: registry.access.redhat.com/ubi8/nodejs-12
     env:
-      - name: BACKEND_COMPONENT_HOST
-        value: "nodejs-backend"
-      - name: BACKEND_COMPONENT_PORT
+      - name: NODE_PATH
+        value: /deps/node_modules
+      - name: BACKEND_HOST
+        value: nodejs-backend
+      - name: BACKEND_PORT
         value: "8080"
-    memoryLimit: 256Mi
+    memoryLimit: 1024Mi
     mountSources: true
+    volumes:
+      - name: node-modules
+        containerPath: /deps
     endpoints:
-      - name: "nodejs-frontend"
+      - name: "8080/http"
         port: 8080
+
 commands:
   - name: devBuild
     actions:
       - type: exec
-        component: frontend
-        command: npm install
+        component: build
+        command: npm install --production --no-package-lock && mv node_modules /deps/
         workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-frontend
+
   - name: devRun
     actions:
       - type: exec
-        component: frontend
+        component: runtime
         command: npm start
         workdir: ${CHE_PROJECTS_ROOT}/nodejs-multiple-components-frontend
 ```
